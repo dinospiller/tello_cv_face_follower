@@ -4,21 +4,30 @@ import tellopy
 import av
 import cv2.cv2 as cv2  # for avoidance of pylint error
 import time
-import imutils
-import argparse
 import numpy as np
-import mahotas
-
 import imutils
-from facedetector import FaceDetector
+from face_follower import FaceFollower
 
-fd = FaceDetector("haarcascade_frontalface_default.xml")
+def print_onscreen_instructions(img,detecting):
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    if detecting == 0:
+        cv2.putText(img, "press s to start face detection", (20, 20), font, 0.5, (0, 255, 0), 2, cv2.LINE_AA);
+    else:
+        cv2.putText(img, "press s to STOP face detection", (20, 20), font, 0.5, (0, 255, 0), 2, cv2.LINE_AA);
+    cv2.putText(img,"press q to exit",(20,40),font,0.5,(0,255,0),2,cv2.LINE_AA);
+    cv2.putText(img, "U=up, D=down", (20,60), font, 0.5, (0, 255, 0), 2, cv2.LINE_AA);
+    cv2.putText(img, "L=left, R=right", (20,80), font, 0.5, (0, 255, 0), 2, cv2.LINE_AA);
+    cv2.putText(img, "F=fwd, B=backwd", (20,100), font, 0.5, (0, 255, 0), 2, cv2.LINE_AA);
+    cv2.putText(img, "C=clockwise, V=c.clockwise", (20, 120), font, 0.5, (0, 255, 0), 2, cv2.LINE_AA);
+    cv2.putText(img, "SPACE to takeoff/land", (20,140), font, 0.5, (0, 255, 0), 2, cv2.LINE_AA);
+    cv2.putText(img, "ENTER to STOP all movements", (50, img.shape[0]-30), font, 1.0, (0, 255, 0), 2, cv2.LINE_AA);
+    return img
 
-font=cv2.FONT_HERSHEY_SIMPLEX
 
 def main():
     drone = tellopy.Tello()
-    detection=0; # face detectio active flag
+    global detection; # face detectio active flag
+    ff = FaceFollower(drone)
 
     try:
         drone.connect()
@@ -36,40 +45,23 @@ def main():
                 image = cv2.cvtColor(np.array(frame.to_image()), cv2.COLOR_RGB2BGR)
                 image=imutils.resize(image,width=700)
                 
-                if detection == 0:
-                    cv2.putText(image,"press d to start face detection",(20,20),font,0.5,(0,255,0),2,cv2.LINE_AA);
-                else:
-                    image_bw=cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+                image=ff.process_frame(image)
 
-                    (faceRects,face_areas) = fd.track_faces(image_bw)
-
-                    ind = 1;
-                    for face_area in face_areas:
-                        if(ind==1): #distinguish between first and successive faces (follow only the first)
-                            color=(0,255,0)
-                        else:
-                            color=(255,0,0)
-                        cv2.rectangle(image, (face_area[0], face_area[1]), (face_area[2], face_area[3]), color, 2)
-                        ind=ind+1;
-
-                    cv2.putText(image,"press d to STOP detection",(20,20),font,0.5,(0,255,0),2,cv2.LINE_AA);
-
-    
-                cv2.putText(image,"press q to exit",(20,40),font,0.5,(0,255,0),2,cv2.LINE_AA);
+                image=print_onscreen_instructions(image,ff.is_detecting());
 
                 cv2.imshow("Drone Camera", image)
     
                 #print("I found: "+ str(len(faceRects)) +" face(s)")
                 but_pressed=cv2.waitKey(1)
                 if but_pressed & 0xFF == ord("q"):
+                    drone.land()
+                    drone.land()
+                    drone.land()
                     cv2.destroyAllWindows()
                     drone.quit()
                     break
-                elif but_pressed & 0xFF == ord("d"):
-                    if detection==1:
-                        detection=0
-                    else:
-                        detection=1
+                else:
+                    ff.on_key_pressed(but_pressed)
 
                 if frame.time_base < 1.0/60:
                     time_base = 1.0/60
