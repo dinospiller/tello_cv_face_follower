@@ -11,8 +11,8 @@ class FaceFollower:
         self.fd = FaceDetector("haarcascade_frontalface_default.xml")
         self.droneflying=0
         self.kpki_vert   = (0.3, 0.05)
-        self.kpki_lateral= (0.5, 0.05)
-        self.kpki_frontal= (0.5, 0.05)
+        self.kpki_lateral= (0.3, 0.05)
+        self.kpki_frontal= (0.2, 0.05)
 
     def on_key_pressed(self,key):
         if key & 0xFF == ord("s"):
@@ -91,6 +91,8 @@ class FaceFollower:
 
             if(ind>1):
                 self.tracking_vert_loop((h, w),rect_center)
+                self.tracking_lateral_loop((h, w),rect_center)
+                self.tracking_frontal_loop((h, w),rect_width)
             else:
                 self.stop_drone()
 
@@ -102,6 +104,22 @@ class FaceFollower:
         vert_error=(image_center[0]-rect_center[0])# remember that up has negative slope in pixels!
         #print("image: V", image_center[0], ",H", image_center[1], " rect: V", rect_center[0], ",H", rect_center[1],"Verr:",vert_error)
         up_strength=int(self.kpki_vert[0]*vert_error)
-        print("up_strength:",up_strength)
+        #print("up_strength:",up_strength)
         # simple proportional control
         self.drone.up(up_strength)
+
+    def tracking_lateral_loop(self,image_size,rect_center):
+        image_center = (image_size[0] / 2, image_size[1] / 2)
+        lateral_error=(image_center[1]-rect_center[1])
+        clockwise_strength=-(int(self.kpki_lateral[0]*lateral_error))
+        #print("lateral_strength:",clockwise_strength)
+        # simple proportional control
+        self.drone.clockwise(clockwise_strength)
+
+    def tracking_frontal_loop(self,image_size,rect_width):
+        image_width=image_size[1]
+        frontal_error=image_width/5-rect_width
+        frontal_strength=(int(self.kpki_frontal[0]*frontal_error))
+        print("frontal_strength:",frontal_strength)
+        # simple proportional control
+        self.drone.forward(frontal_strength)

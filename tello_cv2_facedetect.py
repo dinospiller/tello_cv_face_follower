@@ -43,7 +43,7 @@ def main():
                     continue
                 start_time = time.time()
                 image = cv2.cvtColor(np.array(frame.to_image()), cv2.COLOR_RGB2BGR)
-                image=imutils.resize(image,width=700)
+                image=imutils.resize(image,width=500)
                 
                 image=ff.process_frame(image)
 
