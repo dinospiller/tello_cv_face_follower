@@ -47,8 +47,8 @@ def main():
                 
                 image=ff.process_frame(image)
 
+                image = imutils.resize(image, width=800)
                 image=print_onscreen_instructions(image,ff.is_detecting());
-
                 cv2.imshow("Drone Camera", image)
     
                 #print("I found: "+ str(len(faceRects)) +" face(s)")

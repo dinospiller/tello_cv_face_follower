@@ -10,9 +10,9 @@ class FaceFollower:
         self.following=0
         self.fd = FaceDetector("haarcascade_frontalface_default.xml")
         self.droneflying=0
-        self.kpki_vert   = (0.3, 0.05)
-        self.kpki_lateral= (0.3, 0.05)
-        self.kpki_frontal= (0.2, 0.05)
+        self.kpki_vert   = (0.35, 0.05)
+        self.kpki_lateral= (0.35, 0.05)
+        self.kpki_frontal= (0.8, 0.05)
 
     def on_key_pressed(self,key):
         if key & 0xFF == ord("s"):
@@ -26,6 +26,7 @@ class FaceFollower:
             self.stop_drone()
         elif key == 32 : #space pressed
             if self.droneflying==0:
+                self.stop_drone()
                 self.drone.takeoff()
                 self.drone.takeoff()#redoundant
                 self.droneflying=1
@@ -118,8 +119,8 @@ class FaceFollower:
 
     def tracking_frontal_loop(self,image_size,rect_width):
         image_width=image_size[1]
-        frontal_error=image_width/5-rect_width
+        frontal_error=image_width/6-rect_width
         frontal_strength=(int(self.kpki_frontal[0]*frontal_error))
-        print("frontal_strength:",frontal_strength)
+        #print("frontal_strength:",frontal_strength)
         # simple proportional control
         self.drone.forward(frontal_strength)
