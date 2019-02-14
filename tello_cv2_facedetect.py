@@ -11,9 +11,9 @@ from face_follower import FaceFollower
 def print_onscreen_instructions(img,detecting):
     font = cv2.FONT_HERSHEY_SIMPLEX
     if detecting == 0:
-        cv2.putText(img, "press s to start face detection", (20, 20), font, 0.5, (0, 255, 0), 2, cv2.LINE_AA);
+        cv2.putText(img, "press s to start following", (20, 20), font, 0.5, (0, 255, 0), 2, cv2.LINE_AA);
     else:
-        cv2.putText(img, "press s to STOP face detection", (20, 20), font, 0.5, (0, 255, 0), 2, cv2.LINE_AA);
+        cv2.putText(img, "press s to STOP following", (20, 20), font, 0.5, (0, 255, 0), 2, cv2.LINE_AA);
     cv2.putText(img,"press q to exit",(20,40),font,0.5,(0,255,0),2,cv2.LINE_AA);
     cv2.putText(img, "U=up, D=down", (20,60), font, 0.5, (0, 255, 0), 2, cv2.LINE_AA);
     cv2.putText(img, "L=left, R=right", (20,80), font, 0.5, (0, 255, 0), 2, cv2.LINE_AA);
