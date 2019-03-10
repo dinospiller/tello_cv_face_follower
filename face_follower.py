@@ -103,7 +103,8 @@ class FaceFollower:
                 self.tracking_lateral_loop((h, w),rect_center)
                 self.tracking_frontal_loop((h, w),rect_width)
         else:
-            self.stop_drone()
+            if self.detecting == 1:
+                self.stop_drone()
 
         return image
 

@@ -8,6 +8,8 @@ import numpy as np
 import imutils
 from face_follower import FaceFollower
 
+prev_flight_data=""
+
 def print_onscreen_instructions(img,detecting):
     font = cv2.FONT_HERSHEY_SIMPLEX
     if detecting == 0:
@@ -20,9 +22,15 @@ def print_onscreen_instructions(img,detecting):
     cv2.putText(img, "F=fwd, B=backwd", (20,100), font, 0.5, (0, 255, 0), 2, cv2.LINE_AA);
     cv2.putText(img, "C=clockwise, V=c.clockwise", (20, 120), font, 0.5, (0, 255, 0), 2, cv2.LINE_AA);
     cv2.putText(img, "SPACE to takeoff/land", (20,140), font, 0.5, (0, 255, 0), 2, cv2.LINE_AA);
-    cv2.putText(img, "ENTER to STOP all movements", (50, img.shape[0]-30), font, 1.0, (0, 255, 0), 2, cv2.LINE_AA);
+    cv2.putText(img, "ENTER to STOP all movements", (int(img.shape[1]/6), img.shape[0]-40), font, 1.0, (0, 0, 255), 2, cv2.LINE_AA);
+    cv2.putText(img, prev_flight_data, (int(img.shape[1]/5), img.shape[0]-15), font, 0.5, (0, 255, 255), 2, cv2.LINE_AA);
     return img
 
+def flightDataHandler(event, sender, data):
+    global prev_flight_data
+    text = str(data)
+    if prev_flight_data != text:
+        prev_flight_data = text
 
 def main():
     drone = tellopy.Tello()
@@ -34,6 +42,8 @@ def main():
         drone.wait_for_connection(60.0)
 
         container = av.open(drone.get_video_stream())
+        drone.subscribe(drone.EVENT_FLIGHT_DATA, flightDataHandler)
+
         # skip first frames
         frame_skip = 30
         while True:
