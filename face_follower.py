@@ -1,5 +1,5 @@
 import imutils
-from facedetector import FaceDetector
+import face_detector
 import tellopy
 import cv2.cv2 as cv2  # for avoidance of pylint error
 from numpy import linalg
@@ -9,7 +9,7 @@ class FaceFollower:
         self.drone=drone
         self.detecting=0
         self.following=0
-        self.fd = FaceDetector("haarcascade_frontalface_default.xml")
+        self.fd = face_detector.FaceDetector("haarcascade_frontalface_default.xml")
         self.droneflying=0
         self.kpki_vert   = (0.35, 0.05)
         self.kpki_lateral= (0.35, 0.05)

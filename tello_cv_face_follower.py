@@ -6,7 +6,8 @@ import cv2.cv2 as cv2  # for avoidance of pylint error
 import time
 import numpy as np
 import imutils
-from face_follower import FaceFollower
+#from face_follower import *
+import face_follower
 
 prev_flight_data=""
 
@@ -35,7 +36,7 @@ def flightDataHandler(event, sender, data):
 def main():
     drone = tellopy.Tello()
     global detection; # face detectio active flag
-    ff = FaceFollower(drone)
+    ff = face_follower.FaceFollower(drone)
 
     try:
         drone.connect()
