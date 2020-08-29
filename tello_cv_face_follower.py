@@ -41,12 +41,19 @@ def main():
     try:
         drone.connect()
         drone.wait_for_connection(60.0)
+        drone.set_video_encoder_rate(10)
 
         container = av.open(drone.get_video_stream())
         drone.subscribe(drone.EVENT_FLIGHT_DATA, flightDataHandler)
 
+        # Below VideoWriter object will create
+        # a frame of above defined The output
+        # is stored in 'filename.avi' file.
+        video_file = cv2.VideoWriter('captured_video.avi',
+                                 cv2.VideoWriter_fourcc(*'MJPG'),
+                                 10, (800,600))
         # skip first frames
-        frame_skip = 30
+        frame_skip = 10
         while True:
             for frame in container.decode(video=0):
                 if 0 < frame_skip:
@@ -61,7 +68,9 @@ def main():
                 image = resize(image, width=800)
                 image=print_onscreen_instructions(image,ff.is_detecting());
                 cv2.imshow("Drone Camera", image)
-    
+
+                video_file.write(image)
+
                 #print("I found: "+ str(len(faceRects)) +" face(s)")
                 but_pressed=cv2.waitKey(1)
                 if but_pressed & 0xFF == ord("q"):
@@ -74,8 +83,8 @@ def main():
                 else:
                     ff.on_key_pressed(but_pressed)
 
-                if frame.time_base < 1.0/20:
-                    time_base = 1.0/20
+                if frame.time_base < 1.0/60.0:
+                    time_base = 1.0/60.0
                 else:
                     time_base = frame.time_base
                 frame_skip = int((time.time() - start_time)/time_base)
