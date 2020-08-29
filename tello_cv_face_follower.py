@@ -1,13 +1,13 @@
 import sys
+sys.path.append('utils')
 import traceback
 import tellopy
 import av
 import cv2.cv2 as cv2  # for avoidance of pylint error
 import time
 import numpy as np
-import imutils
-#from face_follower import *
-import face_follower
+from face_follower import *
+from imgutils import *
 
 prev_flight_data=""
 
@@ -36,7 +36,7 @@ def flightDataHandler(event, sender, data):
 def main():
     drone = tellopy.Tello()
     global detection; # face detectio active flag
-    ff = face_follower.FaceFollower(drone)
+    ff = FaceFollower(drone)
 
     try:
         drone.connect()
@@ -54,11 +54,11 @@ def main():
                     continue
                 start_time = time.time()
                 image = cv2.cvtColor(np.array(frame.to_image()), cv2.COLOR_RGB2BGR)
-                image=imutils.resize(image,width=500)
+                image=resize(image,width=500)
                 
                 image=ff.process_frame(image)
 
-                image = imutils.resize(image, width=800)
+                image = resize(image, width=800)
                 image=print_onscreen_instructions(image,ff.is_detecting());
                 cv2.imshow("Drone Camera", image)
     
@@ -74,8 +74,8 @@ def main():
                 else:
                     ff.on_key_pressed(but_pressed)
 
-                if frame.time_base < 1.0/60:
-                    time_base = 1.0/60
+                if frame.time_base < 1.0/20:
+                    time_base = 1.0/20
                 else:
                     time_base = frame.time_base
                 frame_skip = int((time.time() - start_time)/time_base)

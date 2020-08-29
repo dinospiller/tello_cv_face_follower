@@ -1,9 +1,9 @@
-import cv2
-
+import cv2.cv2 as cv2
+from cv2 import CascadeClassifier
 
 class FaceDetector:
     def __init__(self, faceCascadePath):
-        self.faceCascade = cv2.CascadeClassifier(faceCascadePath)
+        self.faceCascade = CascadeClassifier(faceCascadePath)
     
     
     def track_faces(self, image):
